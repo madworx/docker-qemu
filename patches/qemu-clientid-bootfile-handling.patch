@@ -1,5 +1,5 @@
 diff --git a/slirp/bootp.c b/slirp/bootp.c
-index 5dd1a41..d0106f7 100644
+index 9e7b53b..8da8c41 100644
 --- a/slirp/bootp.c
 +++ b/slirp/bootp.c
 @@ -99,7 +99,7 @@ static BOOTPClient *find_addr(Slirp *slirp, struct in_addr *paddr,

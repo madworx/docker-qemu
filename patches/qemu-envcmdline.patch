@@ -1,8 +1,8 @@
 diff --git a/vl.c b/vl.c
-index fce1fd1..b880581 100644
+index 16b913f..5261973 100644
 --- a/vl.c
 +++ b/vl.c
-@@ -3060,6 +3060,27 @@ int main(int argc, char **argv, char **envp)
+@@ -2950,6 +2950,27 @@ int main(int argc, char **argv, char **envp)
      QSIMPLEQ_HEAD(, BlockdevOptions_queue) bdo_queue
          = QSIMPLEQ_HEAD_INITIALIZER(bdo_queue);
  
