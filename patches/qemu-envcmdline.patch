@@ -1,6 +1,8 @@
---- qemu-2.12.0-rc2.orig/vl.c	2018-04-04 22:28:50.000000000 +0200
-+++ qemu-2.12.0-rc2/vl.c	2018-04-26 13:57:35.538524521 +0200
-@@ -3060,6 +3060,27 @@
+diff --git a/vl.c b/vl.c
+index fce1fd1..b880581 100644
+--- a/vl.c
++++ b/vl.c
+@@ -3060,6 +3060,27 @@ int main(int argc, char **argv, char **envp)
      QSIMPLEQ_HEAD(, BlockdevOptions_queue) bdo_queue
          = QSIMPLEQ_HEAD_INITIALIZER(bdo_queue);
  
