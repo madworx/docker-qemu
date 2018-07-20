@@ -2,7 +2,7 @@ FROM alpine:3.7 AS build-qemu
 
 MAINTAINER Martin Kjellstrand [https://github.com/madworx]
 
-ARG QEMU_RELEASE="v2.11.1"
+ARG QEMU_RELEASE="v2.12.0"
 
 ARG QEMU_BUILD_PKGS="build-base lzo-dev jpeg-dev sdl2-dev libcap-ng-dev \
                      git-email xen-dev bison libssh2-dev cyrus-sasl-dev \

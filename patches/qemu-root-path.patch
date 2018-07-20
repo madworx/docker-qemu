@@ -1,8 +1,7 @@
-diff --git a/net/slirp.c b/net/slirp.c
-index 318a26e..38f6153 100644
---- a/net/slirp.c
-+++ b/net/slirp.c
-@@ -152,10 +152,11 @@ static int net_slirp_init(NetClientState *peer, const char *model,
+diff -uNr qemu.orig/net/slirp.c qemu/net/slirp.c
+--- qemu.orig/net/slirp.c	2018-07-20 20:04:31.656309443 +0200
++++ qemu/net/slirp.c	2018-07-20 20:05:11.645513165 +0200
+@@ -154,10 +154,11 @@
                            bool ipv6, const char *vprefix6, int vprefix6_len,
                            const char *vhost6,
                            const char *vhostname, const char *tftp_export,
@@ -18,7 +17,7 @@ index 318a26e..38f6153 100644
  {
      /* default settings according to historic slirp */
      struct in_addr net  = { .s_addr = htonl(0x0a000200) }; /* 10.0.2.0 */
-@@ -368,8 +369,8 @@ static int net_slirp_init(NetClientState *peer, const char *model,
+@@ -370,8 +371,8 @@
  
      s->slirp = slirp_init(restricted, ipv4, net, mask, host,
                            ipv6, ip6_prefix, vprefix6_len, ip6_host,
@@ -29,7 +28,7 @@ index 318a26e..38f6153 100644
      QTAILQ_INSERT_TAIL(&slirp_stacks, s, entry);
  
      for (config = slirp_configs; config; config = config->next) {
-@@ -941,9 +942,9 @@ int net_init_slirp(const Netdev *netdev, const char *name,
+@@ -956,9 +957,9 @@
                           ipv4, vnet, user->host,
                           ipv6, user->ipv6_prefix, user->ipv6_prefixlen,
                           user->ipv6_host, user->hostname, user->tftp,
@@ -42,10 +41,9 @@ index 318a26e..38f6153 100644
  
      while (slirp_configs) {
          config = slirp_configs;
-diff --git a/qapi/net.json b/qapi/net.json
-index 4beff5d..8d022b6 100644
---- a/qapi/net.json
-+++ b/qapi/net.json
+diff -uNr qemu.orig/qapi/net.json qemu/qapi/net.json
+--- qemu.orig/qapi/net.json	2018-07-20 20:04:31.716311250 +0200
++++ qemu/qapi/net.json	2018-07-20 20:05:11.645513165 +0200
 @@ -152,6 +152,8 @@
  #
  # @bootfile: BOOTP filename, for use with tftp=
@@ -63,11 +61,10 @@ index 4beff5d..8d022b6 100644
      '*dhcpstart': 'str',
      '*dns':       'str',
      '*dnssearch': ['String'],
-diff --git a/qemu-options.hx b/qemu-options.hx
-index 57f2c6a..bee2263 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -1920,7 +1920,7 @@ DEF("netdev", HAS_ARG, QEMU_OPTION_netdev,
+diff -uNr qemu.orig/qemu-options.hx qemu/qemu-options.hx
+--- qemu.orig/qemu-options.hx	2018-07-20 20:04:31.720311369 +0200
++++ qemu/qemu-options.hx	2018-07-20 20:05:11.645513165 +0200
+@@ -1907,7 +1907,7 @@
      "         [,ipv6[=on|off]][,ipv6-net=addr[/int]][,ipv6-host=addr]\n"
      "         [,restrict=on|off][,hostname=host][,dhcpstart=addr]\n"
      "         [,dns=addr][,ipv6-dns=addr][,dnssearch=domain][,tftp=dir]\n"
@@ -76,8 +73,8 @@ index 57f2c6a..bee2263 100644
  #ifndef _WIN32
                                               "[,smb=dir[,smbserver=addr]]\n"
  #endif
-@@ -2143,6 +2143,16 @@ Example (using pxelinux):
- qemu-system-i386 -hda linux.img -boot n -net user,tftp=/path/to/tftp/files,bootfile=/pxelinux.0
+@@ -2153,6 +2153,16 @@
+     -netdev user,id=n1,tftp=/path/to/tftp/files,bootfile=/pxelinux.0
  @end example
  
 +@item rootpath=@var{path}
@@ -93,11 +90,10 @@ index 57f2c6a..bee2263 100644
  @item smb=@var{dir}[,smbserver=@var{addr}]
  When using the user mode network stack, activate a built-in SMB
  server so that Windows OSes can access to the host files in @file{@var{dir}}
-diff --git a/slirp/bootp.c b/slirp/bootp.c
-index 5dd1a41..9054023 100644
---- a/slirp/bootp.c
-+++ b/slirp/bootp.c
-@@ -309,6 +309,14 @@ static void bootp_reply(Slirp *slirp, const struct bootp_t *bp)
+diff -uNr qemu.orig/slirp/bootp.c qemu/slirp/bootp.c
+--- qemu.orig/slirp/bootp.c	2018-07-20 20:04:31.732311731 +0200
++++ qemu/slirp/bootp.c	2018-07-20 20:05:11.645513165 +0200
+@@ -309,6 +309,14 @@
                  q += val;
              }
          }
@@ -112,11 +108,10 @@ index 5dd1a41..9054023 100644
      } else {
          static const char nak_msg[] = "requested address not available";
  
-diff --git a/slirp/libslirp.h b/slirp/libslirp.h
-index f90f0f5..91b9699 100644
---- a/slirp/libslirp.h
-+++ b/slirp/libslirp.h
-@@ -15,9 +15,9 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
+diff -uNr qemu.orig/slirp/libslirp.h qemu/slirp/libslirp.h
+--- qemu.orig/slirp/libslirp.h	2018-07-20 20:04:31.736311851 +0200
++++ qemu/slirp/libslirp.h	2018-07-20 20:05:11.645513165 +0200
+@@ -14,9 +14,9 @@
                    struct in6_addr vprefix_addr6, uint8_t vprefix_len,
                    struct in6_addr vhost6, const char *vhostname,
                    const char *tftp_path, const char *bootfile,
@@ -129,11 +124,10 @@ index f90f0f5..91b9699 100644
  void slirp_cleanup(Slirp *slirp);
  
  void slirp_pollfds_fill(GArray *pollfds, uint32_t *timeout);
-diff --git a/slirp/slirp.c b/slirp/slirp.c
-index 1cb6b07..6c0b74d 100644
---- a/slirp/slirp.c
-+++ b/slirp/slirp.c
-@@ -284,9 +284,9 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
+diff -uNr qemu.orig/slirp/slirp.c qemu/slirp/slirp.c
+--- qemu.orig/slirp/slirp.c	2018-07-20 20:04:31.736311851 +0200
++++ qemu/slirp/slirp.c	2018-07-20 20:05:11.645513165 +0200
+@@ -284,9 +284,9 @@
                    struct in6_addr vprefix_addr6, uint8_t vprefix_len,
                    struct in6_addr vhost6, const char *vhostname,
                    const char *tftp_path, const char *bootfile,
@@ -146,7 +140,7 @@ index 1cb6b07..6c0b74d 100644
  {
      Slirp *slirp = g_malloc0(sizeof(Slirp));
  
-@@ -317,6 +317,7 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
+@@ -317,6 +317,7 @@
      }
      slirp->tftp_prefix = g_strdup(tftp_path);
      slirp->bootp_filename = g_strdup(bootfile);
@@ -154,11 +148,10 @@ index 1cb6b07..6c0b74d 100644
      slirp->vdhcp_startaddr = vdhcp_start;
      slirp->vnameserver_addr = vnameserver;
      slirp->vnameserver_addr6 = vnameserver6;
-diff --git a/slirp/slirp.h b/slirp/slirp.h
-index 898ec95..d0c4823 100644
---- a/slirp/slirp.h
-+++ b/slirp/slirp.h
-@@ -192,6 +192,7 @@ struct Slirp {
+diff -uNr qemu.orig/slirp/slirp.h qemu/slirp/slirp.h
+--- qemu.orig/slirp/slirp.h	2018-07-20 20:04:31.736311851 +0200
++++ qemu/slirp/slirp.h	2018-07-20 20:05:11.645513165 +0200
+@@ -191,6 +191,7 @@
      /* bootp/dhcp states */
      BOOTPClient bootp_clients[NB_BOOTP_CLIENTS];
      char *bootp_filename;
