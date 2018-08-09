@@ -1,3 +1,0 @@
-QEMU v3.0.0-rc1 currently segfaults madworx/netbsd installation.
-
-This is the reason this branch should not be used until the problems are fixed.
