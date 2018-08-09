@@ -1,4 +1,4 @@
-QEMU_VERSION := v2.12.0
+QEMU_VERSION := v3.0.0-rc4
 
 all:	build
 
@@ -15,13 +15,13 @@ reintegrate-qemu-release:
 	rm -rf qemu.pristine qemu >/dev/null 2>&1 || true
 	git clone --depth 1 --single-branch -b $(QEMU_VERSION) git://git.qemu-project.org/qemu.git qemu.pristine
 	find ./patches -type f | while read PATCH ; do \
-     cp -a qemu.pristine qemu ; \
-     cd qemu ; \
-     echo "Patching $$(pwd) with ../$${PATCH}" ; \
-     patch -p1 -F3 <../$${PATCH} ; \
-     git diff HEAD > ../$${PATCH}.tmp ; \
-     mv ../$${PATCH}.tmp ../$${PATCH} ; \
-     cd ../ ; \
-     rm -rf qemu  ; \
-   done
+	  cp -a qemu.pristine qemu ; \
+	  cd qemu ; \
+	  echo "Patching $$(pwd) with ../$${PATCH}" ; \
+	  patch -p1 -F3 <../$${PATCH} ; \
+	  git diff HEAD > ../$${PATCH}.tmp ; \
+	  mv ../$${PATCH}.tmp ../$${PATCH} ; \
+	  cd ../ ; \
+	  rm -rf qemu  ; \
+	done
 	rm -rf qemu.pristine
