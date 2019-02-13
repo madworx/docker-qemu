@@ -1,8 +1,8 @@
 diff --git a/net/slirp.c b/net/slirp.c
-index 1e14318..de65b32 100644
+index f6dc039..a2d37a5 100644
 --- a/net/slirp.c
 +++ b/net/slirp.c
-@@ -154,10 +154,11 @@ static int net_slirp_init(NetClientState *peer, const char *model,
+@@ -146,10 +146,11 @@ static int net_slirp_init(NetClientState *peer, const char *model,
                            bool ipv6, const char *vprefix6, int vprefix6_len,
                            const char *vhost6,
                            const char *vhostname, const char *tftp_export,
@@ -15,32 +15,29 @@ index 1e14318..de65b32 100644
 +                          const char *vnameserver6, const char *smb_export,
 +                          const char *vsmbserver, const char **dnssearch,
 +                          const char *vdomainname,
+                           const char *tftp_server_name,
                            Error **errp)
  {
-     /* default settings according to historic slirp */
-@@ -376,8 +377,9 @@ static int net_slirp_init(NetClientState *peer, const char *model,
- 
+@@ -377,7 +378,7 @@ static int net_slirp_init(NetClientState *peer, const char *model,
      s->slirp = slirp_init(restricted, ipv4, net, mask, host,
                            ipv6, ip6_prefix, vprefix6_len, ip6_host,
--                          vhostname, tftp_export, bootfile, dhcp,
--                          dns, ip6_dns, dnssearch, vdomainname, s);
-+                          vhostname, tftp_export, bootfile, rootpath,
-+                          dhcp, dns, ip6_dns, dnssearch, vdomainname,
-+                          s);
+                           vhostname, tftp_server_name,
+-                          tftp_export, bootfile, dhcp,
++                          tftp_export, bootfile, rootpath, dhcp,
+                           dns, ip6_dns, dnssearch, vdomainname, s);
      QTAILQ_INSERT_TAIL(&slirp_stacks, s, entry);
  
-     for (config = slirp_configs; config; config = config->next) {
-@@ -964,7 +966,7 @@ int net_init_slirp(const Netdev *netdev, const char *name,
+@@ -912,7 +913,7 @@ int net_init_slirp(const Netdev *netdev, const char *name,
                           ipv4, vnet, user->host,
                           ipv6, user->ipv6_prefix, user->ipv6_prefixlen,
                           user->ipv6_host, user->hostname, user->tftp,
 -                         user->bootfile, user->dhcpstart,
 +                         user->bootfile, user->rootpath, user->dhcpstart,
                           user->dns, user->ipv6_dns, user->smb,
-                          user->smbserver, dnssearch, user->domainname, errp);
- 
+                          user->smbserver, dnssearch, user->domainname,
+                          user->tftp_server_name, errp);
 diff --git a/qapi/net.json b/qapi/net.json
-index c86f351..bdc7467 100644
+index 8f99fd9..7e87f43 100644
 --- a/qapi/net.json
 +++ b/qapi/net.json
 @@ -142,6 +142,8 @@
@@ -52,7 +49,7 @@ index c86f351..bdc7467 100644
  # @dhcpstart: the first of the 16 IPs the built-in DHCP server can
  #             assign
  #
-@@ -187,6 +189,7 @@
+@@ -189,6 +191,7 @@
      '*host':      'str',
      '*tftp':      'str',
      '*bootfile':  'str',
@@ -61,19 +58,10 @@ index c86f351..bdc7467 100644
      '*dns':       'str',
      '*dnssearch': ['String'],
 diff --git a/qemu-options.hx b/qemu-options.hx
-index b1bf0f4..72e74b7 100644
+index 269eda7..3f7b1c1 100644
 --- a/qemu-options.hx
 +++ b/qemu-options.hx
-@@ -1907,7 +1907,7 @@ DEF("netdev", HAS_ARG, QEMU_OPTION_netdev,
-     "         [,ipv6[=on|off]][,ipv6-net=addr[/int]][,ipv6-host=addr]\n"
-     "         [,restrict=on|off][,hostname=host][,dhcpstart=addr]\n"
-     "         [,dns=addr][,ipv6-dns=addr][,dnssearch=domain][,domainname=domain]\n"
--    "         [,tftp=dir][,bootfile=f][,hostfwd=rule][,guestfwd=rule]"
-+    "         [,tftp=dir][,bootfile=f][,rootpath=p][,hostfwd=rule][,guestfwd=rule]"
- #ifndef _WIN32
-                                              "[,smb=dir[,smbserver=addr]]\n"
- #endif
-@@ -2155,6 +2155,16 @@ qemu-system-i386 -hda linux.img -boot n -device e1000,netdev=n1 \
+@@ -2080,6 +2080,16 @@ qemu-system-i386 -hda linux.img -boot n -device e1000,netdev=n1 \
      -netdev user,id=n1,tftp=/path/to/tftp/files,bootfile=/pxelinux.0
  @end example
  
@@ -91,10 +79,10 @@ index b1bf0f4..72e74b7 100644
  When using the user mode network stack, activate a built-in SMB
  server so that Windows OSes can access to the host files in @file{@var{dir}}
 diff --git a/slirp/bootp.c b/slirp/bootp.c
-index 9e7b53b..14a774c 100644
+index 7b1af73..ab7f2c0 100644
 --- a/slirp/bootp.c
 +++ b/slirp/bootp.c
-@@ -317,6 +317,14 @@ static void bootp_reply(Slirp *slirp, const struct bootp_t *bp)
+@@ -341,6 +341,14 @@ static void bootp_reply(Slirp *slirp, const struct bootp_t *bp)
                  q += val;
              }
          }
@@ -110,12 +98,12 @@ index 9e7b53b..14a774c 100644
          static const char nak_msg[] = "requested address not available";
  
 diff --git a/slirp/libslirp.h b/slirp/libslirp.h
-index 740408a..0e83f0e 100644
+index 42e42e9..64e8cc0 100644
 --- a/slirp/libslirp.h
 +++ b/slirp/libslirp.h
-@@ -14,9 +14,10 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
-                   struct in6_addr vprefix_addr6, uint8_t vprefix_len,
+@@ -15,9 +15,10 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
                    struct in6_addr vhost6, const char *vhostname,
+                   const char *tftp_server_name,
                    const char *tftp_path, const char *bootfile,
 -                  struct in_addr vdhcp_start, struct in_addr vnameserver,
 -                  struct in6_addr vnameserver6, const char **vdnssearch,
@@ -128,12 +116,12 @@ index 740408a..0e83f0e 100644
  
  void slirp_pollfds_fill(GArray *pollfds, uint32_t *timeout);
 diff --git a/slirp/slirp.c b/slirp/slirp.c
-index 5c3bd61..d9b074b 100644
+index 322edf5..7bb7925 100644
 --- a/slirp/slirp.c
 +++ b/slirp/slirp.c
-@@ -284,9 +284,10 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
-                   struct in6_addr vprefix_addr6, uint8_t vprefix_len,
+@@ -285,9 +285,10 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
                    struct in6_addr vhost6, const char *vhostname,
+                   const char *tftp_server_name,
                    const char *tftp_path, const char *bootfile,
 -                  struct in_addr vdhcp_start, struct in_addr vnameserver,
 -                  struct in6_addr vnameserver6, const char **vdnssearch,
@@ -145,7 +133,7 @@ index 5c3bd61..d9b074b 100644
  {
      Slirp *slirp = g_malloc0(sizeof(Slirp));
  
-@@ -317,6 +318,7 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
+@@ -318,6 +319,7 @@ Slirp *slirp_init(int restricted, bool in_enabled, struct in_addr vnetwork,
      }
      slirp->tftp_prefix = g_strdup(tftp_path);
      slirp->bootp_filename = g_strdup(bootfile);
@@ -154,7 +142,7 @@ index 5c3bd61..d9b074b 100644
      slirp->vdhcp_startaddr = vdhcp_start;
      slirp->vnameserver_addr = vnameserver;
 diff --git a/slirp/slirp.h b/slirp/slirp.h
-index 10b4108..3f16775 100644
+index b80725a..b8882d4 100644
 --- a/slirp/slirp.h
 +++ b/slirp/slirp.h
 @@ -191,6 +191,7 @@ struct Slirp {
