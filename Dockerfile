@@ -1,4 +1,4 @@
-FROM alpine:3.7 AS build-qemu
+FROM alpine:3.9 AS build-qemu
 
 MAINTAINER Martin Kjellstrand [https://github.com/madworx]
 
@@ -33,8 +33,7 @@ SHELL [ "/bin/bash", "-c" ]
 # We need to patch  a few things in Alpine linux  header files to make
 # qemu compile. We'll do it the fugly way...
 #
-RUN sed -e '/#define PAGE_SIZE/d' -i /usr/include/bits/limits.h \
-    && echo "#include <sys/timex.h>" >> /usr/include/time.h
+RUN echo "#include <sys/timex.h>" >> /usr/include/time.h
   
 RUN adduser -S bob \
     && mkdir -p /build \
@@ -58,6 +57,7 @@ RUN cd /build/qemu \
     && patch -p1 < qemu-envcmdline.patch \
     && sed -e '1i#include <pty.h>' -i util/qemu-openpty.c \
     && sed -e '1i#include <linux/limits.h>' -i hw/9pfs/9p.c \
+    && sed -e '/^#define PAGE_SIZE/d' -i accel/kvm/kvm-all.c \
     && sed -e 's/#include <sys\/signal.h>/#include <signal.h>/' \
            -i util/oslib-posix.c
 
@@ -89,7 +89,7 @@ RUN find /tmp/qemu/usr/share/qemu/ -type f -maxdepth 1 \
 
 # Preferrably we would have built an Alpine 'apk' package here instead.
   
-FROM alpine:3.7
+FROM alpine:3.9
 
 ARG QEMU_RUNTIME_PKGS="busybox-extras libpng pixman libseccomp  openssh \
                        bash curl libjpeg libaio cyrus-sasl \
