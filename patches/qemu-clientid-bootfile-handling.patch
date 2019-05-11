@@ -1,8 +1,8 @@
-diff --git a/slirp/bootp.c b/slirp/bootp.c
-index 7b1af73..ee10574 100644
---- a/slirp/bootp.c
-+++ b/slirp/bootp.c
-@@ -99,7 +99,7 @@ static BOOTPClient *find_addr(Slirp *slirp, struct in_addr *paddr,
+diff --git a/slirp/src/bootp.c b/slirp/src/bootp.c
+index b208e3b..b118299 100644
+--- a/slirp/src/bootp.c
++++ b/slirp/src/bootp.c
+@@ -94,7 +94,7 @@ static BOOTPClient *find_addr(Slirp *slirp, struct in_addr *paddr,
  }
  
  static void dhcp_decode(const struct bootp_t *bp, int *pmsg_type,
@@ -11,7 +11,7 @@ index 7b1af73..ee10574 100644
  {
      const uint8_t *p, *p_end;
      int len, tag;
-@@ -138,6 +138,9 @@ static void dhcp_decode(const struct bootp_t *bp, int *pmsg_type,
+@@ -133,6 +133,9 @@ static void dhcp_decode(const struct bootp_t *bp, int *pmsg_type,
                      memcpy(&(preq_addr->s_addr), p, 4);
                  }
                  break;
@@ -21,7 +21,7 @@ index 7b1af73..ee10574 100644
              default:
                  break;
              }
-@@ -161,9 +164,10 @@ static void bootp_reply(Slirp *slirp, const struct bootp_t *bp)
+@@ -156,9 +159,10 @@ static void bootp_reply(Slirp *slirp, const struct bootp_t *bp)
      uint8_t *q;
      uint8_t *end;
      uint8_t client_ethaddr[ETH_ALEN];
@@ -33,7 +33,7 @@ index 7b1af73..ee10574 100644
      DPRINTF("bootp packet op=%d msgtype=%d", bp->bp_op, dhcp_msg_type);
      if (preq_addr.s_addr != htonl(0L))
          DPRINTF(" req_addr=%08" PRIx32 "\n", ntohl(preq_addr.s_addr));
-@@ -260,9 +264,15 @@ static void bootp_reply(Slirp *slirp, const struct bootp_t *bp)
+@@ -256,9 +260,15 @@ static void bootp_reply(Slirp *slirp, const struct bootp_t *bp)
              *q++ = DHCPACK;
          }
  
@@ -52,11 +52,11 @@ index 7b1af73..ee10574 100644
  
          *q++ = RFC2132_SRV_ID;
          *q++ = 4;
-diff --git a/slirp/bootp.h b/slirp/bootp.h
-index 4043489..6fe0d49 100644
---- a/slirp/bootp.h
-+++ b/slirp/bootp.h
-@@ -70,6 +70,7 @@
+diff --git a/slirp/src/bootp.h b/slirp/src/bootp.h
+index d881ad6..07d4acc 100644
+--- a/slirp/src/bootp.h
++++ b/slirp/src/bootp.h
+@@ -71,6 +71,7 @@
  #define RFC2132_MAX_SIZE	57
  #define RFC2132_RENEWAL_TIME    58
  #define RFC2132_REBIND_TIME     59

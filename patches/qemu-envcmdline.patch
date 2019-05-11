@@ -1,10 +1,10 @@
 diff --git a/vl.c b/vl.c
-index a5ae5f2..31aab42 100644
+index c696ad2..0e2b8cb 100644
 --- a/vl.c
 +++ b/vl.c
-@@ -3015,6 +3015,27 @@ int main(int argc, char **argv, char **envp)
-     QSIMPLEQ_HEAD(, BlockdevOptions_queue) bdo_queue
-         = QSIMPLEQ_HEAD_INITIALIZER(bdo_queue);
+@@ -3022,6 +3022,27 @@ int main(int argc, char **argv, char **envp)
+     char *dir, **dirs;
+     BlockdevOptionsQueue bdo_queue = QSIMPLEQ_HEAD_INITIALIZER(bdo_queue);
  
 +    char *env_cmdline = getenv( "QEMU_CMDLINE" );
 +    if ( env_cmdline != NULL ) {

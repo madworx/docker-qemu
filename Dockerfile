@@ -2,7 +2,7 @@ FROM alpine:3.9 AS build-qemu
 
 MAINTAINER Martin Kjellstrand [https://github.com/madworx]
 
-ARG QEMU_RELEASE="v3.1.0"
+ARG QEMU_RELEASE="v4.0.0"
 
 ARG QEMU_BUILD_PKGS="build-base lzo-dev jpeg-dev sdl2-dev libcap-ng-dev \
                      git-email xen-dev bison libssh2-dev cyrus-sasl-dev \
@@ -55,6 +55,7 @@ RUN cd /build/qemu \
     && patch -p1 < qemu-root-path.patch \
     && patch -p1 < qemu-clientid-bootfile-handling.patch \
     && patch -p1 < qemu-envcmdline.patch \
+    && patch -p1 < qemu-4.0-alpine-compilefix.patch \
     && sed -e '1i#include <pty.h>' -i util/qemu-openpty.c \
     && sed -e '1i#include <linux/limits.h>' -i hw/9pfs/9p.c \
     && sed -e '/^#define PAGE_SIZE/d' -i accel/kvm/kvm-all.c \

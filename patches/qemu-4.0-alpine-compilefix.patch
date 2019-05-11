@@ -1,0 +1,13 @@
+diff --git a/pc-bios/optionrom/pvh_main.c b/pc-bios/optionrom/pvh_main.c
+index a015e1b..c0f8796 100644
+--- a/pc-bios/optionrom/pvh_main.c
++++ b/pc-bios/optionrom/pvh_main.c
+@@ -58,7 +58,7 @@ static uintptr_t search_rsdp(uint32_t start_addr, uint32_t end_addr)
+     /* RSDP signature is always on a 16 byte boundary */
+     for (rsdp_p = (uint64_t *)start_addr; rsdp_p < (uint64_t *)end_addr;
+          rsdp_p += 2) {
+-        if (*rsdp_p == RSDP_SIGNATURE) {
++        if (*rsdp_p == (uint64_t)RSDP_SIGNATURE) {
+             return (uintptr_t)rsdp_p;
+         }
+     }

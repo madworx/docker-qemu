@@ -1,4 +1,4 @@
-QEMU_VERSION := v3.1.0
+QEMU_VERSION := v4.0.0
 
 all:	build
 
