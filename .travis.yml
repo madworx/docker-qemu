@@ -71,5 +71,8 @@ jobs:
     - stage: "Submit PR"
       env: CONSUMER
       script:
-        - echo "Apparently auto-upgrade worked. Generate a PR with the code changes."
-        - git diff
+        - echo "Apparently autobuild worked. Generate a PR with the code changes."
+        - create_pr_if_not_exists
+        - merge_autobuild_against_autoupgrade
+        - git diff autoupgrade
+        
