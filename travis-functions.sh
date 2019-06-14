@@ -21,7 +21,7 @@ function ensure_autoupgrade_branch() {
 
 function merge_autobuild_against_autoupgrade() {
     git checkout autoupgrade
-    if git merge --ff-only "${TRAVIS_BRANCH}" ; else
+    if ! git merge --ff-only "${TRAVIS_BRANCH}" ; then
            ERRMSG="Unable to perform a ff-merge against ${TRAVIS_BRANCH}. Aborting attempt."
            comment_on_pr "${ERRMSG}" || echo "${ERRMSG}. Also, no PR exists towards the autoupgrade branch so not logging status there."
            comment_on_pr "${ERRMSG}"
@@ -30,13 +30,15 @@ function merge_autobuild_against_autoupgrade() {
 }
 
 function create_pr_if_not_exists() {
+    echo "not really: create_pr_if_not_exists $*"
 }
 
 function find_pr() {
+    echo "not really: find_pr $*"
 }
 
 function comment_on_pr() {
-    
+    echo "not really: comment_on_pr $*"    
 }
 
 function set_makefile_qemu_version() {
