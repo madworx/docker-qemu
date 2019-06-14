@@ -11,18 +11,19 @@ env:
 
 stages:
   - name: "Try auto-upgrade"
-    if: type = cron
+    if: type = cron OR branch = build-by-travisci
   - name: "Build image"
-    if: type != cron
+    if: type != cron AND branch != build-by-travisci
   - name: "Test"
-    if: type != cron
-  - name: "Submit PR"
-    if: branch = autobuild
+    if: type != cron AND branch != build-by-travisci
+  - name: "Submit pull request"
+    if: branch ~= /^autobuild-/
   - name: "Publish artifacts"
     if: branch = master AND type = push
 
 before_script:
   - source <(curl 'https://raw.githubusercontent.com/madworx/cd-ci-glue/master/src/cd-ci-glue.bash')
+  - source travis-functions.sh
   - pip install awscli
   - export PATH="${PATH}:/home/travis/perl5/bin"
   - export PERL5LIB="${PERL5LIB}:/home/travis/perl5/lib/perl5"
@@ -46,20 +47,12 @@ jobs:
         - export LATEST_QEMU="$(github_releases_get_latest qemu/qemu)"
         - export CURRENT_QEMU="$(make version)"
         - |
-          if [[ "$(make version)" != "${LATEST_QEMU}" ]] ; then
-            echo "Newer version (${LATEST_QEMU}) found instead of current (${CURRENT_QEMU}). Patching Makefile"
-            sed -e "s#^\\(QEMU_VERSION :=\\).*#\\1 ${LATEST_QEMU}#" -i Makefile
+          if [[ "${CURRENT_QEMU}" != "${LATEST_QEMU}" ]] ; then
+            ensure_autoupgrade_branch
+            set_makefile_qemu_version "${CURRENT_QEMU}" "${LATEST_QEMU}"
             echo "Attempting to re-integrate patches."
             make reintegrate-qemu-release || exit 1
-            echo "Re-integration worked. Deleting possible old autobuild branch and commit new one."
-            git remote remove origin
-            git remote add origin https://${GH_TOKEN}@github.com/madworx/docker-qemu
-            git branch -D autobuild || true
-            git push origin :autobuild || true
-            git checkout -b autobuild
-            git commit -a -m "Reintegration against ${LATEST_QEMU} worked."
-            git remote -v
-            git push -u origin autobuild
+            create_autobuild_branch "${LATEST_QEMU}"
           fi
     - stage: "Build image"
       env: CONSUMER
@@ -74,9 +67,10 @@ jobs:
         - docker tag "${ECRIMG}" "madworx/qemu:latest"
         - docker tag "${ECRIMG}" "madworx/qemu:$(make version)"
         - "! is_travis_master_push && echo 'Not really publishing since not on master' || dockerhub_push_image madworx/qemu:latest"
-        - "! is_travis_master_push && echo 'Not really publishing since not on master' || dockerhub_push_image madworx/qemu:`make version`"
-    - stage: "Submit PR"
+        - "! is_travis_master_push && echo 'Not really publishing since not on master' || dockerhub_push_image madworx/qemu:$(make version)"
+    - stage: "Submit pull request"
       env: CONSUMER
       script:
-        - echo "Apparently auto-upgrade worked. Generate a PR with the code changes."
-        - git diff
+        - echo "Apparently autobuild worked. Generate a PR with the code changes."
+        - create_pr_if_not_exists
+        - merge_autobuild_against_autoupgrade
