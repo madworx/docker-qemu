@@ -11,7 +11,7 @@ env:
 
 stages:
   - name: "Try auto-upgrade"
-    if: type = cron
+    if: type = cron OR branch = build-by-travisci
   - name: "Build image"
     if: type != cron
   - name: "Test"
