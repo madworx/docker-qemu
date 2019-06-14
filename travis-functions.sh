@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eE
+set -o pipefail
+
 # Travis CI support functions
 
 function ensure_autoupgrade_branch() {
