@@ -6,6 +6,8 @@ set -o pipefail
 # Travis CI support functions
 
 function ensure_autoupgrade_branch() {
+    git remote remove origin
+    git remote add origin https://${GH_TOKEN}@github.com/madworx/docker-qemu
     git checkout autoupgrade || git checkout -b autoupgrade
     git push --set-upstream origin autoupgrade
 }
