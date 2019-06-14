@@ -22,7 +22,6 @@ stages:
     if: branch = master AND type = push
 
 before_script:
-  - export GH_TOKEN
   - source <(curl 'https://raw.githubusercontent.com/madworx/cd-ci-glue/master/src/cd-ci-glue.bash')
   - source travis-functions.sh
   - pip install awscli

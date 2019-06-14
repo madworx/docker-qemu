@@ -9,7 +9,12 @@ function ensure_autoupgrade_branch() {
     git remote remove origin
     git remote add origin https://${GH_TOKEN}@github.com/madworx/docker-qemu
     git checkout autoupgrade || git checkout -b autoupgrade
-    git push --set-upstream origin autoupgrade
+    echo "Ensured autoupgrade branch. Now attempting to do a fast-forward merge against ${TRAVIS_BRANCH}."
+    if git merge --ff-only "${TRAVIS_BRANCH}" ; then
+        git push --set-upstream origin autoupgrade
+    else
+        echo "Unable to perform a ff-merge against ${TRAVIS_BRANCH}. Aborting attempt."
+    fi
 }
 
 function set_makefile_qemu_version() {
