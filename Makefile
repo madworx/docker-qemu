@@ -2,6 +2,9 @@ QEMU_VERSION := v4.0.0
 
 all:	build
 
+version:
+	@echo $(QEMU_VERSION)
+
 build:
 	docker build --build-arg=QEMU_RELEASE=$(QEMU_VERSION) --force-rm \
 		-f Dockerfile -t madworx/qemu:$(QEMU_VERSION) .
