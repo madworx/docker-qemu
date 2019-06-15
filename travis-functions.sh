@@ -28,6 +28,11 @@ function ensure_autoupgrade_branch() {
 
 function merge_autobuild_against_autoupgrade() {
     ensure_github_authenticated
+
+    # Apply git magick:
+    git remote set-branches --add origin autoupgrade
+    git fetch origin autoupgrade
+
     git checkout autoupgrade
     if ! git merge --ff-only "${TRAVIS_BRANCH}" ; then
         comment_on_pr "Unable to perform a ff-merge against ${TRAVIS_BRANCH}. Aborting attempt."
@@ -46,7 +51,7 @@ function find_pr() {
 }
 
 function comment_on_pr() {
-    echo "not really: comment_on_pr $*"    
+    echo "not really: comment_on_pr $*"
     #comment_on_pr "${ERRMSG}" || echo "${ERRMSG}. Also, no PR exists towards the autoupgrade branch so not logging status there."
 }
 

@@ -16,7 +16,7 @@ stages:
     if: type != cron AND branch != build-by-travisci
   - name: "Test"
     if: type != cron AND branch != build-by-travisci
-  - name: "Submit PR"
+  - name: "Submit pull request"
     if: branch ~= /^autobuild-/
   - name: "Publish artifacts"
     if: branch = master AND type = push
@@ -67,12 +67,11 @@ jobs:
         - docker tag "${ECRIMG}" "madworx/qemu:latest"
         - docker tag "${ECRIMG}" "madworx/qemu:$(make version)"
         - "! is_travis_master_push && echo 'Not really publishing since not on master' || dockerhub_push_image madworx/qemu:latest"
-        - "! is_travis_master_push && echo 'Not really publishing since not on master' || dockerhub_push_image madworx/qemu:`make version`"
-    - stage: "Submit PR"
+        - "! is_travis_master_push && echo 'Not really publishing since not on master' || dockerhub_push_image madworx/qemu:$(make version)"
+    - stage: "Submit pull request"
       env: CONSUMER
       script:
         - echo "Apparently autobuild worked. Generate a PR with the code changes."
         - create_pr_if_not_exists
-        - merge_autobuild_against_autoupgrade
         - git diff autoupgrade
-        
+        - merge_autobuild_against_autoupgrade
