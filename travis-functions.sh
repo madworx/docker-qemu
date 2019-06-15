@@ -5,27 +5,35 @@ set -o pipefail
 
 # Travis CI support functions
 
-function ensure_autoupgrade_branch() {
+function ensure_github_authenticated() {
     git remote remove origin
-    git remote add origin https://${GH_TOKEN}@github.com/madworx/docker-qemu
-    git checkout autoupgrade || git checkout -b autoupgrade
-    
-    echo "Ensured autoupgrade branch. Checking if we can do fast-forward merge against ${TRAVIS_BRANCH}."
-    if ! git merge --ff-only "${TRAVIS_BRANCH}" ; then
-        # PR might not exist here.
-        ERRMSG="Unable to perform a ff-merge against ${TRAVIS_BRANCH}. Aborting attempt."
-        comment_on_pr "${ERRMSG}" || echo "${ERRMSG}. Also, no PR exists towards the autoupgrade branch so not logging status there."
-        exit 1
+    git remote add origin "https://${GH_TOKEN}@github.com/madworx/docker-qemu"
+}
+
+# Ensure that we can fast-forward towards the 'autoupgrade' branch.
+# If that branch doesn't exist - this is a no-op.
+function ensure_autoupgrade_branch() {
+    ensure_github_authenticated
+    if git checkout autoupgrade ; then
+        echo "Ensured autoupgrade branch. Checking if we can do fast-forward merge against ${TRAVIS_BRANCH}."
+        if ! git merge --ff-only "${TRAVIS_BRANCH}" ; then
+            comment_on_pr "Unable to perform a ff-merge against ${TRAVIS_BRANCH}. Aborting attempt."
+            exit 1
+        fi
+    else
+        echo 'No existing autoupgrade branch exists. Creating it as a branch of current branch.'
+        git checkout -b autoupgrade
     fi
 }
 
 function merge_autobuild_against_autoupgrade() {
+    ensure_github_authenticated
     git checkout autoupgrade
     if ! git merge --ff-only "${TRAVIS_BRANCH}" ; then
-           ERRMSG="Unable to perform a ff-merge against ${TRAVIS_BRANCH}. Aborting attempt."
-           comment_on_pr "${ERRMSG}" || echo "${ERRMSG}. Also, no PR exists towards the autoupgrade branch so not logging status there."
-           comment_on_pr "${ERRMSG}"
-           exit 1
+        comment_on_pr "Unable to perform a ff-merge against ${TRAVIS_BRANCH}. Aborting attempt."
+        exit 1
+    else
+        git push
     fi
 }
 
@@ -39,6 +47,7 @@ function find_pr() {
 
 function comment_on_pr() {
     echo "not really: comment_on_pr $*"    
+    #comment_on_pr "${ERRMSG}" || echo "${ERRMSG}. Also, no PR exists towards the autoupgrade branch so not logging status there."
 }
 
 function set_makefile_qemu_version() {
@@ -52,8 +61,7 @@ function create_autobuild_branch() {
     LATEST_QEMU="$1"
     BRANCH_NAME="autobuild-${LATEST_QEMU}"
     echo "Re-integration worked. Deleting possible old autobuild branch for this version and commit new one."
-    git remote remove origin
-    git remote add origin https://${GH_TOKEN}@github.com/madworx/docker-qemu
+    ensure_github_authenticated
     git branch -D "${BRANCH_NAME}" || true
     git push origin :"${BRANCH_NAME}" || true
     git checkout -b "${BRANCH_NAME}"
