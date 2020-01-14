@@ -1,4 +1,4 @@
-FROM alpine:3.9 AS build-qemu
+FROM alpine:3.10 AS build-qemu
 
 MAINTAINER Martin Kjellstrand [https://github.com/madworx]
 
@@ -90,7 +90,7 @@ RUN find /tmp/qemu/usr/share/qemu/ -type f -maxdepth 1 \
 
 # Preferrably we would have built an Alpine 'apk' package here instead.
   
-FROM alpine:3.9
+FROM alpine:3.11
 
 ARG QEMU_RUNTIME_PKGS="busybox-extras libpng pixman libseccomp  openssh \
                        bash curl libjpeg libaio cyrus-sasl \
