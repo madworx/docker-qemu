@@ -1,9 +1,17 @@
+SHELL := /bin/bash
 QEMU_VERSION := v5.1.0
 
 all:	build
 
 version:
-	@echo $(QEMU_VERSION)
+	@QEMU_VERSION=$(QEMU_VERSION) ; echo $${QEMU_VERSION:1}
+
+docker-tags:
+	@QEMU_VERSION=$(QEMU_VERSION) ; \
+	QEMU_VERSION=$${QEMU_VERSION:1} ; \
+	echo "$${QEMU_VERSION} " ; \
+	[[ "$${QEMU_VERSION}" =~ rc ]] \
+		|| echo "$${QEMU_VERSION%.*}" "$${QEMU_VERSION%%.*}"
 
 build:
 	docker build --build-arg=QEMU_RELEASE=$(QEMU_VERSION) --force-rm \
