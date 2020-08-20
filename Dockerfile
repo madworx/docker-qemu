@@ -1,6 +1,6 @@
 FROM alpine:3.12 AS build-qemu
 
-MAINTAINER Martin Kjellstrand [https://github.com/madworx]
+LABEL maintainer="Martin Kjellstrand [https://github.com/madworx]"
 
 ARG QEMU_RELEASE="v5.1.0"
 
@@ -33,16 +33,17 @@ RUN cd /build \
            git://git.qemu-project.org/qemu.git
 
 #
-# Apply or a-little-bit-more structured patches:
+# Apply our a-little-bit-more structured patches:
 #
 COPY patches/*.patch /build/qemu/
 
 USER bob
 RUN cd /build/qemu \
-    && patch -p1 < qemu-4.0-alpine-compilefix.patch \
-#    && patch -p1 < qemu-clientid-bootfile-handling.patch \
-#    && patch -p1 < qemu-envcmdline.patch \
-#    && sed -e '1i#include <pty.h>' -i util/qemu-openpty.c \
+    && git submodule update --init slirp \
+    && patch -p1 < qemu-clientid-bootfile-handling.patch \
+    && patch -p1 < qemu-alpine-compilefix.patch \
+    && patch -p1 < qemu-envcmdline.patch \
+    && patch -p1 < qemu-root-path.patch \
     && sed -e '/^#define PAGE_SIZE/d' -i accel/kvm/kvm-all.c 
 
 ARG QEMU_DISABLE_FEATURES="lzo capstone smartcard opengl gcrypt cocoa    \
@@ -84,7 +85,7 @@ RUN find /tmp/qemu/usr/share/qemu/ -type f -maxdepth 1 \
     | egrep -v "/($(echo ${RETAIN_BIOSES} | sed 's#  *#|#g'))\$" \
     | xargs -r rm && \
     find /tmp/qemu/usr/share/qemu/keymaps/ -type f \
-    | egrep -v '/en-gb$' | xargs -r rm
+    | egrep -v '/en-us$' | xargs -r rm
 
 # Build our patched copy of unfs3
 FROM alpine:3.12 AS build-unfs3

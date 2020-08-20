@@ -1,11 +1,12 @@
-diff --git a/vl.c b/vl.c
-index c696ad2..0e2b8cb 100644
---- a/vl.c
-+++ b/vl.c
-@@ -3022,6 +3022,27 @@ int main(int argc, char **argv, char **envp)
-     char *dir, **dirs;
-     BlockdevOptionsQueue bdo_queue = QSIMPLEQ_HEAD_INITIALIZER(bdo_queue);
+diff --git a/softmmu/vl.c b/softmmu/vl.c
+index 4eb9d1f..4d1a84b 100644
+--- a/softmmu/vl.c
++++ b/softmmu/vl.c
+@@ -2872,6 +2872,28 @@ void qemu_init(int argc, char **argv, char **envp)
+     os_set_line_buffering();
  
+     error_init(argv[0]);
++
 +    char *env_cmdline = getenv( "QEMU_CMDLINE" );
 +    if ( env_cmdline != NULL ) {
 +       const char seps[]   = " \t\n";
