@@ -7,7 +7,7 @@ cache:
 env:
   matrix:
     - CONSUMER="madworx/docker-minix 3.4.0rc6"
-    - CONSUMER="madworx/docker-netbsd 8.0"
+    - CONSUMER="madworx/docker-netbsd 9.0"
 
 stages:
   - name: "Try auto-upgrade"
