@@ -64,10 +64,10 @@ jobs:
       env: CONSUMER
       script:
         - docker pull "${ECRIMG}"
-        - for TAG in $(make docker-tags) ; do docker tag "${ECRIMG}" "madworx/qemu:${TAG}"
+        - for TAG in $(make docker-tags) ; do docker tag "${ECRIMG}" "madworx/qemu:${TAG}" ; done
         - docker tag "${ECRIMG}" "madworx/qemu:latest"
         - "! is_travis_master_push && echo 'Not really publishing since not on master' || dockerhub_push_image madworx/qemu:latest"
-        - "! is_travis_master_push || for TAG in $(make docker-tags) ; do dockerhub_push_image madworx/qemu:${TAG}"
+        - is_travis_master_push && for TAG in $(make docker-tags) ; do dockerhub_push_image madworx/qemu:${TAG} ; done
     - stage: "Submit pull request"
       env: CONSUMER
       script:
