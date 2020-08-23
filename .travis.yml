@@ -35,7 +35,7 @@ script:
   - docker tag "${ECRIMG}" "madworx/qemu:latest"
   - git clone --depth 1 "https://github.com/${CONSUMER/ */}"
   - cd "$(basename "${CONSUMER/ */}")"
-  - sed -e 's#FROM .*#FROM madworx/qemu:latest#' -i Dockerfile
+  - sed -re 's#FROM madworx/qemu(:[^\s]+)?( AS )?#FROM madworx/qemu:latest\2#' -i Dockerfile
   - if [ -d tools ] ; then cpanm --local-lib=~/perl5 local::lib ; cpanm --quiet --installdeps --notest ./tools ; fi
   - MINIX_VERSION="${CONSUMER/* /}" NETBSD_VERSION="${CONSUMER/* /}" make build test
 
