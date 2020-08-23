@@ -46,7 +46,7 @@ jobs:
       script:
         - echo "Attempting to auto-upgrade if there's a new version to be had."
         - export LATEST_QEMU="$(github_releases_get_latest qemu/qemu)"
-        - export CURRENT_QEMU="$(make version)"
+        - export CURRENT_QEMU="v$(make version)"
         - |
           if [[ "${CURRENT_QEMU}" != "${LATEST_QEMU}" ]] ; then
             ensure_autoupgrade_branch
