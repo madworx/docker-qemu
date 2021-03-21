@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-QEMU_VERSION := v5.1.0
+QEMU_VERSION := v5.2.0
 
 all:	build
 

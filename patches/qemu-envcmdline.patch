@@ -1,8 +1,8 @@
 diff --git a/softmmu/vl.c b/softmmu/vl.c
-index 4eb9d1f..4d1a84b 100644
+index e6e0ad5..88e330b 100644
 --- a/softmmu/vl.c
 +++ b/softmmu/vl.c
-@@ -2872,6 +2872,28 @@ void qemu_init(int argc, char **argv, char **envp)
+@@ -2903,6 +2903,28 @@ void qemu_init(int argc, char **argv, char **envp)
      os_set_line_buffering();
  
      error_init(argv[0]);
