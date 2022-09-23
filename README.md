@@ -22,10 +22,6 @@ This is used to make the process name (observable by `ps` and `top`) a bit more 
 
 Implement the DHCP `Root-Path` option, to enable us to point to from where the guest OS should mount its root filesystem.
 
-### `qemu-alpine-compilefix.patch`
-
-For QEMU 4.0.0 and onwards, `pvh_main.c` needed an explicit cast to `uint64_t` to compile cleanly on Alpine.
-
 ## Author
 
-Martin Kjellstrand [martin.kjellstrand@madworx.se]
+Martin Kjellstrand [provider+github@madworx.tech]

@@ -1,26 +1,26 @@
 SHELL := /bin/bash
-QEMU_VERSION := v5.1.0
+QEMU_VERSION := v7.1.0
 
 all:	build
 
 version:
-	@QEMU_VERSION=$(QEMU_VERSION) ; echo $${QEMU_VERSION:1}
+	@echo $(subst v,,$(QEMU_VERSION))
 
 docker-tags:
-	@QEMU_VERSION=$(QEMU_VERSION) ; \
-	QEMU_VERSION=$${QEMU_VERSION:1} ; \
-	echo "$${QEMU_VERSION} " ; \
-	[[ "$${QEMU_VERSION}" =~ rc ]] \
-		|| echo "$${QEMU_VERSION%.*}" "$${QEMU_VERSION%%.*}"
+	@echo latest
+	@echo "$(subst v,,$(QEMU_VERSION))" | awk -F. '{print $$1" "$$1"."$$2" "$$1"."$$2"."$$3}'
 
 build:
 	docker build --build-arg=QEMU_RELEASE=$(QEMU_VERSION) --force-rm \
-		-f Dockerfile -t madworx/qemu:$(QEMU_VERSION) .
-	docker tag madworx/qemu:$(QEMU_VERSION) madworx/qemu:latest
+		-f Dockerfile -t madworx/qemu:$(shell make version) .
+	for TAG in $(shell make docker-tags) ; do \
+		docker tag madworx/qemu:$(shell make version) madworx/qemu:"$$TAG" ; \
+	done
 
 push:
-	docker push madworx/qemu:latest
-	docker push madworx/qemu:$(QEMU_VERSION)
+	for TAG in $(shell make docker-tags) ; do \
+		docker push madworx/qemu:"$$TAG" ; \
+	done
 
 reintegrate-qemu-release:
 	rm -rf qemu.pristine qemu >/dev/null 2>&1 || true
@@ -28,9 +28,10 @@ reintegrate-qemu-release:
 	find ./patches -type f | while read PATCH ; do \
 	  cp -a qemu.pristine qemu ; \
 	  cd qemu ; \
+	  git submodule update --init slirp ; \
 	  echo "Patching $$(pwd) with ../$${PATCH}" ; \
 	  patch -p1 -F3 <../$${PATCH} ; \
-	  git diff HEAD > ../$${PATCH}.tmp ; \
+	  git diff --submodule=diff HEAD > ../$${PATCH}.tmp ; \
 	  mv ../$${PATCH}.tmp ../$${PATCH} ; \
 	  cd ../ ; \
 	  rm -rf qemu  ; \
